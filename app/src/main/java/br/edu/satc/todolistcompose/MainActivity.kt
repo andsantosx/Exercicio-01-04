@@ -3,28 +3,40 @@ package br.edu.satc.todolistcompose
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.runtime.mutableStateListOf
-import br.edu.satc.todolistcompose.data.TaskData
+import androidx.activity.viewModels
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import br.edu.satc.todolistcompose.data.TaskPreferences
+import br.edu.satc.todolistcompose.data.TaskRepository
+import br.edu.satc.todolistcompose.data.local.TaskDatabase
 import br.edu.satc.todolistcompose.ui.screens.HomeScreen
 import br.edu.satc.todolistcompose.ui.theme.ToDoListComposeTheme
+import br.edu.satc.todolistcompose.ui.viewmodel.TaskViewModel
+import br.edu.satc.todolistcompose.ui.viewmodel.TaskViewModelFactory
 
 class MainActivity : ComponentActivity() {
+    private val taskViewModel: TaskViewModel by viewModels {
+        TaskViewModelFactory(
+            repository = TaskRepository(
+                taskDao = TaskDatabase.getDatabase(applicationContext).taskDao(),
+                preferences = TaskPreferences(applicationContext)
+            )
+        )
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         setContent {
+            val tasks by taskViewModel.tasks.collectAsState()
+
             ToDoListComposeTheme {
-                HomeScreen()
+                HomeScreen(
+                    tasks = tasks,
+                    onAddTask = taskViewModel::addTask,
+                    onTaskCheckedChange = taskViewModel::updateTaskCompletion
+                )
             }
         }
     }
 }
-
-var mockTaskData = mutableStateListOf(
-    TaskData(1, "Comprar pão", "Comprar pão na padaria", false),
-    TaskData(2, "Estudar Kotlin", "Estudar Kotlin para o curso de Android", true),
-    TaskData(3, "Ler um livro", "Ler o livro 'Clean Code'", false),
-    TaskData(4, "Fazer exercícios", "Fazer exercícios físicos por 30 minutos", true),
-    TaskData(5, "Assistir série", "Assistir a série 'Stranger Things'", false),
-    TaskData(6, "Cozinhar", "Cozinhar o jantar para a família", false)
-)
