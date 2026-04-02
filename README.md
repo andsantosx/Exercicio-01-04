@@ -57,3 +57,4 @@ O objetivo do exercício é implementar a camada de persistência para que:
 
 Este exercício é uma oportunidade prática para consolidar os conceitos de persistência de dados no desenvolvimento Android. Ao final, o aplicativo estará funcional, com uma camada de persistência integrada à interface.
 
+ 
